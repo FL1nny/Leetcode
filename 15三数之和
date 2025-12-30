@@ -1,0 +1,39 @@
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> result;
+        int n = nums.size();
+        sort(nums.begin(), nums.end());
+        for(int i = 0; i < n; i++){
+            if(nums[i] > 0){
+                return result;
+            }
+            if(i > 0 && nums[i] == nums[i - 1]){                                      //去重1：若第i个与第i-1个元素相同则跳过对第i个元素的判断  
+                                                                                      //注:不能用第i个与第i+1个元素判断,因为第i+1个元素为left指针,可能会漏掉如[-1,-1,2]这种情况
+                continue;
+            }
+            int l = i + 1;
+            int r = n - 1;//双指针left，right以及i
+            while(l < r){
+                if(nums[i] + nums[l] + nums[r] > 0){
+                    r--;
+                }
+                else if(nums[i] + nums[l] + nums[r] < 0){
+                    l++;
+                }
+                else{
+                    result.push_back(vector<int> {nums[i],nums[l],nums[r]});        //a.push_back(vector<int> {Elem1,Elem2}) 向数组a的末尾压入一个含两个元素{Elem1,Elem2}的vector<int>数组
+                    while(r > l && nums[r] == nums [r-1]){                          //经sort升序排序后若nums[r] == nums [r-1]则需去重
+                        r--;
+                    }
+                    while(r > l && nums[l] == nums [l + 1]){
+                        l++;
+                    }
+                    r--;
+                    l++;
+                }
+            }
+        }
+        return result;
+    }
+};
