@@ -1,2 +1,2 @@
-# Leetcode
-record
+FUNNY
+随想
