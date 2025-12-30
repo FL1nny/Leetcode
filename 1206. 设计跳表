@@ -13,21 +13,21 @@ class Skiplist {
 private:
     SkiplistNode *head;
     int level;
-    mt19937 gen{random_device{}()};//random_device a    mt19937gen(a())     gen与a均为函数名
+    mt19937 gen{random_device{}()};                                                //random_device a    mt19937gen(a())     gen与a均为函数名
     uniform_real_distribution<double> dis;//uniform_int_distribution<int> b
 public:
-    Skiplist() : head(new SkiplistNode(-1)),level(0),dis(0,1) {//dis(0,1)生成均匀分布在（0,1）间的随机数以决定节点层数
+    Skiplist() : head(new SkiplistNode(-1)),level(0),dis(0,1) {                    //dis(0,1)生成均匀分布在（0,1）间的随机数以决定节点层数
         
     }
     
     bool search(int target) {
         SkiplistNode *curr = this ->head;
         for (int i = level - 1; i >=0; i--){
-            while (curr -> forward[i] && curr -> forward[i] -> val < target){//循环指向该层下一节点直到两条件中有一个不满足（下一节点为NULL或下一节点值大于target）
+            while (curr -> forward[i] && curr -> forward[i] -> val < target){      //循环指向该层下一节点直到两条件中有一个不满足（下一节点为NULL或下一节点值大于target）
                 curr = curr ->forward[i];
             }
         }
-        curr = curr ->forward[0];//最底层（底层含全部节点）下一节点(该节点不满足（下一节点非NULL或节点值小于target）)为期望目标节点（大于等于target的第一个元素）
+        curr = curr ->forward[0];                                                 //最底层（底层含全部节点）下一节点(该节点不满足（下一节点非NULL或节点值小于target）)为期望目标节点（大于等于target的第一个元素）
         if(curr && curr -> val == target){//curr未超出边界且curr的值等于target
             return true;
         }
@@ -54,7 +54,7 @@ public:
     
     bool erase(int num) {
         vector<SkiplistNode *> update(MAX_LEVEL,nullptr);
-        SkiplistNode *curr = this -> head;//等价于SkiplistNode* curr = head
+        SkiplistNode *curr = this -> head;                                    //等价于SkiplistNode* curr = head
         for (int i = level - 1; i >= 0; i--){
             while (curr -> forward[i] && curr -> forward[i] -> val < num){
                 curr = curr -> forward[i];
