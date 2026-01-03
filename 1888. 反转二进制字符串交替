@@ -1,0 +1,19 @@
+class Solution {
+public:
+    int minFlips(string s) {//操作1将最前字符移到最后 => 均为s+s 的子串
+        int n = s.size() , ans = n , cnt = 0;
+        for(int i = 0; i < n * 2 - 1; i++){
+            if(s[i % n] % 2 != i % 2){
+                //索引%2为0或1,字符对应不为0或1 =>需要翻转一次（实现奇数索引对应字符1,偶数索引对应字符0即可二进制字符串交替）
+                cnt++;
+            }
+            int l = i - n + 1;
+            if(l < 0) continue;
+            ans = min({ans , cnt , n - cnt});
+            if(s[l] % 2 != l % 2){
+                cnt--;
+            }
+        }
+        return ans;
+    }
+};
