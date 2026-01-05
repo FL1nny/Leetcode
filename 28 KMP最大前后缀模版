@@ -1,0 +1,36 @@
+class Solution {
+public:
+    void getNext(vector<int>& next , const string &s){
+        int j = -1 ;
+        next[0] = j;
+        int n = s.size();
+        for(int i = 1; i < n; i++){//j指向前缀末尾,i指向后缀末尾
+            while(j >= 0 && s[j + 1] != s[i]){
+                j = next[j];//若前缀末指针与后缀末指针不等 => 无公共前后缀 => 回退
+            }
+            if(s[j + 1] == s[i]){
+                j++;//公共前后缀只能以公差为1递增或中断( 0 )，若前缀末指针与后缀末指针相等则将i,j均后移一位
+            }
+            next[i] = j;//数组中下标为i元素的公共前后缀长
+        }
+    }
+    int strStr(string haystack, string needle) {
+        if(needle.size() == 0) return -1;
+        vector<int> next(needle.size());
+        getNext(next , needle);//匹配串的next数组
+        int j = -1;
+        for(int i = 0; i < haystack.size(); i++){
+            while(j >= 0 && haystack[i] != needle[j + 1]){
+                j = next[j];//不匹配 => 回退
+            }
+            if(haystack[i] == needle[j + 1]){
+                j++;//匹配长度 + 1 
+            }
+            if(j == (needle.size() - 1)){
+            //若有匹配长度等于匹配串长度-1 (j从 -1 开始),此时i指针指向当前元素,j为匹配串长度,相减即可得到第一个匹配项的下标
+                return (i - j);
+            }
+        }
+        return -1;
+    }
+};
