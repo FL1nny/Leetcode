@@ -1,0 +1,32 @@
+class Solution {
+public:
+    long long maximumSubarraySum(vector<int>& nums, int k) {
+        int n = nums.size();
+        if (n < k) return 0;
+        std::unordered_map<int , int> freq;
+        long long windowSum = 0;
+        long long maxSum = 0;
+        for(int i = 0; i < k; i++){
+            freq[nums[i]]++;
+            windowSum += nums[i];
+        }
+        if(freq.size() == k){
+            maxSum = windowSum;
+        }
+        for(int i = k ; i < nums.size(); i++){
+            int l = nums[i - k];
+            freq[l]--;
+            windowSum -= l;
+            if(freq[l] == 0){
+                freq.erase(l);
+            }
+            int r = nums[i];
+            freq[r]++;
+            windowSum += r;
+            if(freq.size() == k){
+                maxSum = max(maxSum,windowSum);
+            }
+        }
+        return maxSum;
+    }
+};
