@@ -5,11 +5,11 @@ public:
         int n = nums.size();
         int sum = 0;
         int l = 0, r = 0;
-        while(r < n) {
+        while(r < n) {            //右指针未到nums数组末端
             sum += nums[r];
-            if(r - l + 1 == k) {
+            if(r - l + 1 == k) {  //到达窗口大小
                 ans = max(ans, sum);
-                sum -= nums[l++];
+                sum -= nums[l++];//更新窗口内总和并与当前最大值比较,若窗口更新后值大于当前最大值则更新最大值
             } 
             r++;
         }
