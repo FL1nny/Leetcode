@@ -1,0 +1,60 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+//vector<vector<int>> levelOrder(TreeNode* root){层序遍历BFS
+int levelOrder(TreeNode* root){
+    // vector<vector<int>> res;
+    // if(!root) return res;
+    if(!root) return 1;
+
+    deque<TreeNode*> q;
+    q.push_back(root);
+
+    int maxSum = INT_MIN;
+    int currentLevel = 0;
+    int maxLevel = 1;
+    while(!q.empty()){
+        int levelSize = q.size();
+        //vector<int> levelNodes;                 //封装为二维数组，res[i]中含第i层的若干levelNodes[1~(2^i-1)]
+
+        int levelSum = 0;
+        currentLevel++;
+
+        for(int i = 1; i < levelSize + 1; i++){ //根节点在第一层
+            TreeNode* node = q. front();
+            q.pop_front();
+            //levelNodes.push_back(node -> val);
+
+            levelSum += node -> val;//遍历同时计算每层节点总和
+
+            if(node -> left) q.push_back(node -> left);
+            if(node -> right) q.push_back(node -> right);
+        }
+        //res.push_back(levelNodes);
+        if(levelSum > maxSum){
+                maxSum = levelSum;
+                maxLevel = currentLevel;
+            }      
+    }
+    //return res;
+    return maxLevel;
+}
+
+class Solution {
+public:
+    int maxLevelSum(TreeNode* root) {
+        //int maxLevel = 1;
+        // for(int i = 1; i < res.size() + 1; i++){
+        //     int sum = 0;
+        //     for(int type : res[i]) sum += type;   这样将达到O(n²)的时间复杂度，最优方案是在层序遍历同时计算每层总和
+        return levelOrder(root);
+    }
+};
