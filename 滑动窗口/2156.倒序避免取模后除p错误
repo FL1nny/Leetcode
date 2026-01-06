@@ -1,0 +1,25 @@
+class Solution {
+public:
+    string subStrHash(string s, int power, int modulo, int k, int hashValue) 
+    {
+        long long hash=0,pk=1;// 记录滑窗动态哈希值
+        int ans=0; //ans存储答案索引，pk记录k个间隔时所差的p的多少次方的值
+        int n=s.length();
+        for(int i=n-1;i>=n-k;i--) //先从后往前遍历一遍k个间隔时的情况，之后只用往里面增删相应滑窗数值
+        {
+            hash=(hash*power + (s[i]&31))%modulo; // 求k个间隔时的哈希值
+            /*注意，从后往前遍历，hash为空，之后前面不断涌来新字母，此时字母数量增多，此时的val(s[k-1])的值会相当于上一次时往后移了一位会多出一个p，这里很抽象，之后再把左边新加的字母的哈希值加上 */
+
+            pk=pk*power%modulo; // 注意pk固定，之后不用更新，pk是k个间隔时所相差的固定的的p^k
+        }
+       ans= hash==hashValue? n-k:0; // ans的意义
+       for(int i=n-1-k;i>=0;i--) //开始滑窗
+       {
+         hash=(hash*power+(s[i]&31)-pk*(s[i+k]&31)%modulo+modulo)%modulo;
+         // pk是固定的
+
+         if(hash==hashValue) ans=i;//记录答案
+       }
+       return s.substr(ans,k);//提取
+    }  
+};
