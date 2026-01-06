@@ -1,0 +1,18 @@
+class Solution {
+public:
+    int maxScore(vector<int>& nums, int k) {
+        int ans = 0;
+        int n = nums.size();
+        int sum = 0;
+        int l = 0, r = 0;
+        while(r < n) {
+            sum += nums[r];
+            if(r - l + 1 == k) {
+                ans = max(ans, sum);
+                sum -= nums[l++];
+            } 
+            r++;
+        }
+        return ans;
+    }
+};
