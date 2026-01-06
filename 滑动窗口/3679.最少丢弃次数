@@ -1,0 +1,24 @@
+class Solution {
+public:
+    int minArrivalsToDiscard(vector<int>& arrivals, int w, int m) {
+        unordered_map<int , int> cnt;
+        int ans = 0;
+        for(int i = 0;i < arrivals.size(); ++i){
+            int& x = arrivals[i];
+            //int& x为引用x作为arrivals[i]别名，对x的修改同时也会修改arrivals[i] (相当于共享地址空间)
+            //int x = arrivals[i]仅为拷贝 (相当于子进程/TLB)
+            if(cnt[x] == m){
+                x = 0;
+                ans++;
+            }
+            else{
+                cnt[x]++;
+            }
+            int l = i + 1 - w;
+            if(l >= 0){
+                cnt[arrivals[l]]--;
+            }
+        }
+        return ans;
+    }
+};
