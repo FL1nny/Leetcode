@@ -1,0 +1,23 @@
+class Solution {
+public:
+    int totalFruit(vector<int>& fruits) {
+        int n = fruits.size();
+        vector<int> kinds(n , 0);
+        int l = 0 , r = 0;
+        int cnt = 0;
+        int maxSum = INT_MIN;
+        while(r < n){
+            kinds[fruits[r]]++;
+            if(kinds[fruits[r]] == 1) cnt++;
+            while(cnt > 2){
+                kinds[fruits[l]]--;
+                if(kinds[fruits[l]] == 0) cnt--;
+                l++;
+            }
+
+            r++;
+            maxSum = max(maxSum , r - l);
+        }
+        return maxSum;
+    }
+};
