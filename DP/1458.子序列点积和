@@ -1,0 +1,45 @@
+class Solution {
+public:
+    int maxDotProduct(vector<int>& nums1, vector<int>& nums2) {
+        int n1 = nums1.size();
+        int n2 = nums2.size();
+        int dp[n1 + 1][n2 + 1];
+        for(int i = 0; i <= n1; i++){
+            dp[i][0] = INT_MIN;
+        }
+        for(int j = 0; j <= n2; j++){
+            dp[0][j] = INT_MIN;
+        }
+        for(int i = 0; i < n1; i++){
+            for(int j = 0; j < n2; j++){
+                // dp[i + 1][j + 1] = max(dp[i][j + 1] , dp[i + 1][j]);
+                // dp[i + 1][j + 1] = max(dp[i + 1][j + 1]  , max(max(dp[i][j] , 0) +nums1[i] * nums2[j] , dp[i][j]));
+                dp[i + 1][j + 1] = max({
+                    dp[i][j + 1],
+                    dp[i + 1][j],
+                    nums1[i] * nums2[j],
+                    max(dp[i][j], 0) + nums1[i] * nums2[j]
+                });
+            }
+        }
+        return dp[n1][n2];
+    }
+};
+//dp[i][j]：表示考虑 nums1 的前 i 个元素和 nums2 的前 j 个元素时，能获得的最大点积
+//对于每个 dp[i][j]，我们有四种选择：
+// 情况1：不选 nums1[i-1]
+// 继承 dp[i-1][j] 的结果
+// 表示不考虑 nums1 的第 i 个元素
+
+// 情况2：不选 nums2[j-1]
+// 继承 dp[i][j-1] 的结果
+// 表示不考虑 nums2 的第 j 个元素
+
+// 情况3：只选当前这对元素的乘积
+// 值 = nums1[i-1] * nums2[j-1]
+// 表示重新开始一个子序列
+
+// 情况4：选当前这对元素，并加上之前的结果
+// 值 = max(dp[i-1][j-1], 0) + nums1[i-1] * nums2[j-1]
+// 如果之前的点积是负数，我们可以选择不从它继续（即取0）
+// 表示在当前元素对上继续扩展子序列
