@@ -11,7 +11,7 @@ public:
             sum += tiles[r][1] - tiles[r][0] + 1;//计算r指针区域下包含多少瓷砖
             while(tiles[l][1] <= tiles[r][1] - carpetLen){
                 sum -= tiles[l][1] - tiles[l][0] + 1;
-                //左指针与右指针覆盖范围超过毯子长度时左指针右移,此时存在毯子覆盖瓷砖减少情况
+                //左指针区域最右端小于右指针最右端减毯长,即tiles[left]完全不在窗口
                 l++;
             }
             maxWhite = max(maxWhite , sum - max(0 , tiles[r][1] - carpetLen -tiles[l][0] + 1));
