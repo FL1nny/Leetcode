@@ -1,0 +1,22 @@
+class Solution {
+public:
+    int maximumWhiteTiles(vector<vector<int>>& tiles, int carpetLen) {
+        //对二维数组tiles排序,以第一维度升序排列
+        //ranges::sort(range, comparator, projection) 比较器comparator , 若使用默认升序排列则为{} ,projection为投影函数
+        //lambda表达式 [<捕获列表//若不捕获则为空,若以捕获外部变量i为例则为&i>](<参数列表>){<返回类型>}
+        ranges::sort(  tiles, {}        , [](auto& t){return t[0];});
+        int maxWhite = 0;
+        int sum = 0;
+        for(int l = 0,r = 0; r < tiles.size(); r++){
+            sum += tiles[r][1] - tiles[r][0] + 1;//计算r指针区域下包含多少瓷砖
+            while(tiles[l][1] <= tiles[r][1] - carpetLen){
+                sum -= tiles[l][1] - tiles[l][0] + 1;
+                //左指针与右指针覆盖范围超过毯子长度时左指针右移,此时存在毯子覆盖瓷砖减少情况
+                l++;
+            }
+            maxWhite = max(maxWhite , sum - max(0 , tiles[r][1] - carpetLen -tiles[l][0] + 1));
+            //更新最大值时需 减去第一个瓷砖块(l指针指向区域)中未被覆盖的瓷砖
+        }
+        return maxWhite;
+    }
+};
