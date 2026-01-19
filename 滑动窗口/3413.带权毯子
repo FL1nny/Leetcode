@@ -1,0 +1,29 @@
+class Solution {
+    long long maximumWhiteTiles(vector<vector<int>>& tiles, int k){     
+        long long sum = 0;
+        long long maxCoins = 0;
+        for(int l = 0, r = 0; r < tiles.size(); ++r){
+            sum += (long long)(tiles[r][1] - tiles[r][0] + 1) * tiles[r][2];//统计r指针对应区域中袋子里硬币总数
+            while(tiles[l][1] < tiles[r][1] - k + 1){
+                sum -= (long long)(tiles[l][1] - tiles[l][0] + 1) * tiles[l][2];
+                l++;
+            }
+            long long unsum = max((long long)(tiles[r][1] - k + 1 - tiles[l][0]) * tiles[l][2] , 0LL);
+            maxCoins = max(maxCoins , sum - unsum);
+        }
+        return maxCoins;
+    }
+public:
+    long long maximumCoins(vector<vector<int>>& coins, int k) {
+        ranges::sort(coins , {}, [](auto &t){return t[0];});//Init
+        long long ans = maximumWhiteTiles(coins , k);
+
+        ranges::reverse(coins);
+        for(auto& t : coins){
+            int tmp = t[0];
+            t[0] = - t[1];
+            t[1] = - tmp;
+        }
+        return max(ans , maximumWhiteTiles(coins , k));
+    }
+};
