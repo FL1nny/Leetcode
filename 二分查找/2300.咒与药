@@ -1,0 +1,13 @@
+class Solution {
+public:
+    vector<int> successfulPairs(vector<int>& spells, vector<int>& potions, long long success) {
+        vector<int> pairs;
+        int m = potions.size();
+        sort(potions.begin() , potions.end());
+        for(auto& s : spells){
+            long long need = (success + s - 1) / s;//向上取整
+            pairs.push_back(m - (lower_bound(potions.begin() , potions.end() , need) - potions.begin()) );
+        }
+        return pairs;
+    }
+};
