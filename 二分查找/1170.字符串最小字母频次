@@ -1,0 +1,32 @@
+class Solution {
+public:
+    int f(string& s){
+        int dic[26]={0};
+        for(int i = 0; i < s.size(); i++){
+            dic[s[i] - 'a']++;
+        }
+        for(int i = 0; i < 26; i++){
+            if(dic[i] != 0){
+                return dic[i];
+            }
+        }
+        return 0;
+    }
+    vector<int> numSmallerByFrequency(vector<string>& queries, vector<string>& words) {
+        //统计每一个词中最小字母出现频次
+        int m = queries.size();
+        int n = words.size();
+        int nums[n];
+        for(int i = 0; i < n; i++){
+            nums[i] = f(words[i]);
+        }
+        sort(nums , nums + n);//sort(<数组名>,<数组最后元素的下一指针>) == sort(&nums[0] , &nums[n])
+        vector<int> ans;
+        for(auto& q: queries){
+            int x = f(q);
+            ans.push_back(n - (upper_bound(nums , nums + n , x) - nums));
+            //upper_bound(nums, nums + n, x) 数组 nums 中查找第一个大于 x 的元素位置   (上界函数 ， 二分查找)
+        }
+        return ans;
+    }
+};
