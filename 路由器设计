@@ -1,0 +1,118 @@
+// 自定义哈希函数，用于让 unordered_set 支持 tuple<int,int,int> 作为 key
+// （C++ 标准库在较老版本对 tuple 的 hash 支持不完整，所以需要手写）
+struct TupleHash {
+    // 哈希组合辅助函数（经典 boost 风格）
+    template<typename T>
+    static void hash_combine(size_t& seed, const T& v) {
+        seed ^= hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+
+    // 重载 () 运算符，使其能被 unordered_set 使用
+    size_t operator()(const tuple<int, int, int>& t) const {
+        auto& [a, b, c] = t;           // C++17 结构化绑定
+        size_t seed = 0;
+        hash_combine(seed, a);
+        hash_combine(seed, b);
+        hash_combine(seed, c);
+        return seed;
+    }
+};
+
+class Router {
+private:
+    int memory_limit;                               // 路由器最大可缓存的数据包数量
+
+    // 全局 FIFO 队列，按到达顺序保存所有数据包（最老的在 front）
+    queue<tuple<int, int, int>> packet_q;
+
+    // 用于快速去重：记录已经存在的 (source, destination, timestamp) 三元组
+    unordered_set<tuple<int, int, int>, TupleHash> packet_set;
+
+    // 按 destination 分类的时间戳列表
+    // 因为 addPacket 按 timestamp 非递减调用，所以每个 deque 内的 timestamp 是非递减的
+    // 可以直接使用 lower_bound / upper_bound 做区间查询
+    unordered_map<int, deque<int>> dest_to_timestamps;
+
+public:
+    // 构造函数：初始化内存上限
+    Router(int memoryLimit) {
+        memory_limit = memoryLimit;
+    }
+
+    /**
+     * 尝试添加一个数据包
+     * @return true 表示成功添加（新包），false 表示重复包被拒绝
+     */
+    bool addPacket(int source, int destination, int timestamp) {
+        // 构造三元组 key，用于去重判断
+        auto packet = tuple(source, destination, timestamp);
+
+        // 如果已经存在相同的 (source, dest, ts) 三元组，则视为重复，直接拒绝
+        if (!packet_set.insert(packet).second) {
+            return false;
+        }
+
+        // 如果当前缓存已满，先淘汰最老的一个包（调用 forwardPacket 来完成清理）
+        if (packet_q.size() == memory_limit) {
+            forwardPacket();   // 注意：这里调用 forwardPacket 会返回 vector，但我们忽略返回值
+        }
+
+        // 正式添加数据包
+        packet_q.push(packet);                        // 加入全局 FIFO 队列（尾部）
+        packet_set.insert(packet);                    // 插入去重集合（前面 insert 已经成功，这里是多余的保险，可优化掉）
+        dest_to_timestamps[destination].push_back(timestamp);  // 加入该 destination 的时间戳列表（尾部）
+
+        return true;
+    }
+
+    /**
+     * 转发（并移除）队列中最老的数据包（FIFO 顺序）
+     * @return 成功时返回 {source, destination, timestamp}，无包时返回空 vector
+     */
+    vector<int> forwardPacket() {
+        // 队列为空，直接返回空结果
+        if (packet_q.empty()) {
+            return {};
+        }
+
+        // 取出最老的数据包
+        auto packet = packet_q.front();
+        packet_q.pop();                               // 从队列中移除
+
+        // 从去重集合中删除
+        packet_set.erase(packet);
+
+        // 解构出三个字段
+        auto [source, destination, timestamp] = packet;
+
+        // 从对应 destination 的时间戳列表中移除最前面的时间戳（即最老的）
+        // 因为时间戳按到达顺序插入，所以 front() 就是最早的
+        dest_to_timestamps[destination].pop_front();
+
+        // 返回数据包内容
+        return {source, destination, timestamp};
+    }
+
+    /**
+     * 查询指定 destination 在 [startTime, endTime] 时间范围内的数据包数量
+     * （只统计当前仍在缓存中、尚未被转发的包）
+     */
+    int getCount(int destination, int startTime, int endTime) {
+        // 如果该 destination 从未出现过，直接返回 0
+        if (dest_to_timestamps.find(destination) == dest_to_timestamps.end()) {
+            return 0;
+        }
+
+        // 获取该 destination 的时间戳 deque（已按非递减顺序排列）
+        auto& timestamps = dest_to_timestamps[destination];
+
+        // lower_bound：找到第一个 >= startTime 的位置
+        auto left = ranges::lower_bound(timestamps, startTime);
+
+        // upper_bound：找到第一个 > endTime 的位置
+        auto right = ranges::upper_bound(timestamps, endTime);
+
+        // 两个迭代器之差就是区间内元素个数
+        return right - left;
+    }
+};
